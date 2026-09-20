@@ -3,22 +3,119 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>班表載入中...</title>
+  <title>北海道教練排班系統</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 380px;
+      border-radius: 16px;
+      padding: 28px 24px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+      text-align: center;
+    }
+    .title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 6px;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #64748b;
+      margin-bottom: 24px;
+    }
+    .coach-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .coach-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px;
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      color: #334155;
+      font-size: 16px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .coach-btn:hover, .coach-btn:active {
+      background: #2563eb;
+      border-color: #2563eb;
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+    #redirect-notice {
+      display: none;
+      color: #64748b;
+      font-size: 15px;
+    }
+  </style>
+
   <script>
-    // 自動取得網址後方的參數（例如 ?coach=Donald）
-    var search = window.location.search;
-    
     // 你的 GAS 正式部署網址
-    var gasUrl = "https://script.google.com/macros/s/AKfycbysGzFLJKJL7LJYbd2Ab1MqE3V0lpKrUBS78QTyZVqVnSKMq-Lp-_6FAfxuqCGHxolgZg/exec";
-    
-    // 執行轉址並保留參數
-    window.location.replace(gasUrl + search);
+    var gasBaseUrl = "https://script.google.com/macros/s/AKfycbysGzFLJKJL7LJYbd2Ab1MqE3V0lpKrUBS78QTyZVqVnSKMq-Lp-_6FAfxuqCGHxolgZg/exec";
+
+    // 檢查網址是否有自帶 ?coach= 參數
+    var params = new URLSearchParams(window.location.search);
+    var coachParam = params.get('coach');
+
+    if (coachParam) {
+      // 若網址已經有指定教練（例如從書籤進入），直接轉跳
+      window.location.replace(gasBaseUrl + "?coach=" + encodeURIComponent(coachParam));
+    }
+
+    // 點擊按鈕時轉跳
+    function goToSchedule(coachName) {
+      window.location.href = gasBaseUrl + "?coach=" + encodeURIComponent(coachName);
+    }
   </script>
 </head>
-<body style="margin:0; padding:0; background-color:#f8fafc; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display:flex; justify-content:center; align-items:center; height:100vh;">
-  <div style="text-align:center;">
-    <p style="font-size:16px; color:#475569; margin-bottom:8px;">⛷️ 班表載入中，請稍候...</p>
-    <p style="font-size:12px; color:#94a3b8;">如未自動跳轉，請檢查網路連線</p>
+<body>
+
+  <div class="card">
+    <!-- 預設顯示分流選單 -->
+    <div id="menu">
+      <div class="title">⛷️ 北海道教練團隊</div>
+      <div class="subtitle">請選擇您的名字以查看個人班表</div>
+      
+      <div class="coach-grid">
+        <a class="coach-btn" href="javascript:void(0)" onclick="goToSchedule('Donald')">
+          <span>Donald</span>
+        </a>
+        <a class="coach-btn" href="javascript:void(0)" onclick="goToSchedule('Fong')">
+          <span>Fong</span>
+        </a>
+        <a class="coach-btn" href="javascript:void(0)" onclick="goToSchedule('Andy')">
+          <span>Andy</span>
+        </a>
+        <a class="coach-btn" href="javascript:void(0)" onclick="goToSchedule('海')">
+          <span>海</span>
+        </a>
+      </div>
+    </div>
   </div>
+
 </body>
 </html>
