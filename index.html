@@ -5,11 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>北海道教練排班系統</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background-color: #f1f5f9;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -28,94 +24,111 @@
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
       text-align: center;
     }
-    .title {
-      font-size: 22px;
-      font-weight: 700;
-      color: #1e293b;
-      margin-bottom: 6px;
-    }
-    .subtitle {
-      font-size: 14px;
-      color: #64748b;
-      margin-bottom: 24px;
-    }
-    .coach-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .coach-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
+    .title { font-size: 22px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+    .subtitle { font-size: 14px; color: #64748b; margin-bottom: 24px; }
+    #code {
+      width: 100%;
       padding: 14px;
-      background: #f8fafc;
+      font-size: 24px;
+      letter-spacing: 8px;
+      text-align: center;
       border: 1.5px solid #e2e8f0;
       border-radius: 12px;
-      color: #334155;
+      background: #f8fafc;
+      color: #0f172a;
+      -webkit-text-security: disc;
+      outline: none;
+    }
+    #code:focus { border-color: #2563eb; background: #fff; }
+    #enter-btn {
+      width: 100%;
+      margin-top: 14px;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: #2563eb;
+      color: #fff;
       font-size: 16px;
       font-weight: 600;
-      text-decoration: none;
-      transition: all 0.2s ease;
-      -webkit-tap-highlight-color: transparent;
+      cursor: pointer;
     }
-    .coach-btn:hover, .coach-btn:active {
-      background: #2563eb;
-      border-color: #2563eb;
-      color: #ffffff;
-      transform: translateY(-1px);
-    }
-    #redirect-notice {
-      display: none;
-      color: #64748b;
-      font-size: 15px;
-    }
+    #enter-btn:active { background: #1d4ed8; }
+    #error { min-height: 20px; margin-top: 10px; color: #e11d48; font-size: 14px; }
+    #redirect-notice { display: none; color: #64748b; font-size: 15px; }
   </style>
-
-  <script>
-    // 你的 GAS 正式部署網址
-    var gasBaseUrl = "https://script.google.com/macros/s/AKfycbysGzFLJKJL7LJYbd2Ab1MqE3V0lpKrUBS78QTyZVqVnSKMq-Lp-_6FAfxuqCGHxolgZg/exec";
-
-    // 檢查網址是否有自帶 ?coach= 參數
-    var params = new URLSearchParams(window.location.search);
-    var coachParam = params.get('coach');
-
-    if (coachParam) {
-      // 若網址已經有指定教練（例如從書籤進入），直接轉跳
-      window.location.replace(gasBaseUrl + "?coach=" + encodeURIComponent(coachParam));
-    }
-
-    // 點擊按鈕時轉跳
-    function goToSchedule(coachName) {
-      window.location.href = gasBaseUrl + "?coach=" + encodeURIComponent(coachName);
-    }
-  </script>
 </head>
 <body>
 
   <div class="card">
-    <!-- 預設顯示分流選單 -->
+    <div id="redirect-notice">正在進入班表…</div>
+
     <div id="menu">
       <div class="title">北海道26-27</div>
-      <div class="subtitle">請選擇您的名字以查看個人班表</div>
-      
-      <div class="coach-grid">
-        <a class="coach-btn" href="javascript:void(0)" onclick="goToSchedule('Donald')">
-          <span>Donald</span>
-        </a>
-        <a class="coach-btn" href="javascript:void(0)" onclick="goToSchedule('Fong')">
-          <span>Fong</span>
-        </a>
-        <a class="coach-btn" href="javascript:void(0)" onclick="goToSchedule('Andy')">
-          <span>Andy</span>
-        </a>
-        <a class="coach-btn" href="javascript:void(0)" onclick="goToSchedule('海')">
-          <span>海</span>
-        </a>
-      </div>
+      <div class="subtitle">請輸入 6 位數登入代碼</div>
+
+      <form id="login-form" autocomplete="off">
+        <input id="code" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6"
+               autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+               placeholder="••••••">
+        <button id="enter-btn" type="submit">進入班表</button>
+        <div id="error"></div>
+      </form>
     </div>
   </div>
+
+  <script>
+    // 你的 GAS 正式部署網址
+    var gasBaseUrl = "https://script.google.com/macros/s/AKfycbysGzFLJKJL7LJYbd2Ab1MqE3V0lpKrUBS78QTyZVqVnSKMq-Lp-_6FAfxuqCGHxolgZg/exec";
+    var STORAGE_KEY = "hokkaidoCoachKey";
+
+    function readKey() {
+      try { return localStorage.getItem(STORAGE_KEY) || ""; } catch (e) { return ""; }
+    }
+    function saveKey(k) {
+      try { localStorage.setItem(STORAGE_KEY, k); } catch (e) {}
+    }
+    function clearKey() {
+      try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    }
+
+    function go(key) {
+      document.getElementById("menu").style.display = "none";
+      document.getElementById("redirect-notice").style.display = "block";
+      window.location.replace(gasBaseUrl + "?key=" + encodeURIComponent(key));
+    }
+
+    (function init() {
+      var params = new URLSearchParams(window.location.search);
+
+      // 登出（或代碼無效被後端送回來）：清除記憶並回到輸入畫面
+      if (params.get("logout") === "1") {
+        clearKey();
+        if (window.history && history.replaceState) {
+          history.replaceState(null, "", window.location.pathname);
+        }
+        return;
+      }
+
+      // 已記住代碼：直接進入
+      var saved = readKey();
+      if (/^\d{6}$/.test(saved)) {
+        go(saved);
+      }
+    })();
+
+    document.getElementById("login-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var code = document.getElementById("code").value.trim();
+      var err = document.getElementById("error");
+      if (!/^\d{6}$/.test(code)) {
+        err.textContent = "請輸入 6 位數字";
+        return;
+      }
+      err.textContent = "";
+      saveKey(code);
+      go(code);
+    });
+  </script>
 
 </body>
 </html>
